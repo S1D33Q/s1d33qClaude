@@ -141,21 +141,21 @@ function tone(freq,duration=.12,type='sine',volume=.06,slide=1){if(!options.soun
 // Synthesised meows. A harmonic voice (cats meow with a strong fundamental and bright harmonics) is shaped by three
 // formant peaks that glide from a closed "m" through "ee" to an open "ah" and round off to "ow", like a real meow.
 // Each cat has its own voice; four call types ("meow", "mew", "mrrp" trill, "mrrow?") never repeat back to back.
-const catVoices=[{name:'Miso',f:470,bright:1,rasp:.08,breath:.05,len:1.05,gain:.5},{name:'Peony',f:720,bright:1.15,rasp:0,breath:.035,len:.8,gain:.5},{name:'Mochi',f:560,bright:.85,rasp:.02,breath:.12,len:1.15,gain:.5}];
+const catVoices=[{name:'Miso',f:740,bright:1,rasp:.08,breath:.05,len:.5,gain:.5},{name:'Peony',f:1060,bright:1.15,rasp:0,breath:.035,len:.42,gain:.5},{name:'Mochi',f:880,bright:.85,rasp:.02,breath:.12,len:.52,gain:.5}];
 // p: pitch contour, o: mouth opening 0 (m/oo) .. 1 (ah), e: front vowel amount ("ee"), a: amplitude; points are [time 0..1, value]
 const meowShapes=[
  {d:.62,p:[[0,.82],[.18,1.02],[.42,1.12],[.75,.95],[1,.72]],o:[[0,0],[.18,.45],[.45,1],[.8,.55],[1,.12]],e:[[0,.9],[.3,.6],[.55,.1],[1,0]],a:[[0,0],[.08,.7],[.4,1],[.82,.75],[1,0]]},
- {d:.32,p:[[0,1.05],[.35,1.22],[1,1.0]],o:[[0,.1],[.35,.6],[1,.2]],e:[[0,1],[.6,.8],[1,.5]],a:[[0,0],[.12,.9],[.6,.85],[1,0]]},
- {d:.42,trill:24,p:[[0,.78],[.45,.92],[1,1.12]],o:[[0,0],[.3,.25],[.8,.65],[1,.4]],e:[[0,.2],[1,.6]],a:[[0,0],[.1,.75],[.7,.9],[1,0]]},
+ {d:.32,g:1.8,p:[[0,1.05],[.35,1.22],[1,1.0]],o:[[0,.1],[.35,.6],[1,.2]],e:[[0,1],[.6,.8],[1,.5]],a:[[0,0],[.12,.9],[.6,.85],[1,0]]},
+ {d:.42,g:1.7,trill:24,p:[[0,.78],[.45,.92],[1,1.12]],o:[[0,0],[.3,.25],[.8,.65],[1,.4]],e:[[0,.2],[1,.6]],a:[[0,0],[.1,.75],[.7,.9],[1,0]]},
  {d:.72,p:[[0,.88],[.3,1.0],[.55,.85],[.8,.95],[1,1.18]],o:[[0,0],[.25,.85],[.6,.95],[.85,.5],[1,.25]],e:[[0,.5],[.3,.15],[.7,.05],[1,.3]],a:[[0,0],[.08,.65],[.35,1],[.85,.8],[1,0]]}];
-let lastMeow=[-1,-1,-1],noiseBuf=null,meowWaves=new Map(),lastMeowAt=-9;
+let lastMeow=[-1,-1,-1],noiseBuf=null,meowWaves=new Map(),lastMeowAt=-9,lastMeowOut=null;
 function curve(param,t0,d,pts,map){param.cancelScheduledValues(t0);param.setValueAtTime(map(pts[0][1]),t0);for(const[k,v]of pts.slice(1))param.linearRampToValueAtTime(map(v),t0+k*d)}
 function voiceWave(a,vo){const key=a.sampleRate+'_'+vo.name;if(meowWaves.has(key))return meowWaves.get(key);const n=40,re=new Float32Array(n),im=new Float32Array(n);for(let h=1;h<n;h++)im[h]=Math.pow(h,-(1.45+(1-vo.bright)*.7));const w=a.createPeriodicWave(re,im);meowWaves.set(key,w);return w}
-function meow(ci=options.coat,quiet=1){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const a=audioCtx;if(a.currentTime-lastMeowAt<.28)return;lastMeowAt=a.currentTime;const vo=catVoices[ci]||catVoices[0];let k;do k=Math.floor(Math.random()*meowShapes.length);while(k===lastMeow[ci]);lastMeow[ci]=k;
+function meow(ci=options.coat,quiet=1){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const a=audioCtx;if(a.currentTime-lastMeowAt<.1)return;lastMeowAt=a.currentTime;if(lastMeowOut){lastMeowOut.gain.cancelScheduledValues(a.currentTime);lastMeowOut.gain.setTargetAtTime(0,a.currentTime,.012)}const vo=catVoices[ci]||catVoices[0];let k;do k=Math.floor(Math.random()*meowShapes.length);while(k===lastMeow[ci]);lastMeow[ci]=k;
  const sh=meowShapes[k],t=a.currentTime+.01,d=sh.d*vo.len*(.9+Math.random()*.2),f0=vo.f*(.93+Math.random()*.14);
  const src=a.createOscillator();src.setPeriodicWave(voiceWave(a,vo));curve(src.frequency,t,d,sh.p,v=>f0*v);
  const vib=a.createOscillator(),vg=a.createGain();vib.frequency.value=5.5+Math.random()*1.5;vg.gain.value=f0*.012;vib.connect(vg);vg.connect(src.frequency);
- const amp=a.createGain();curve(amp.gain,t,d,sh.a,v=>v*vo.gain*quiet+.0001);
+ const amp=a.createGain();curve(amp.gain,t,d,sh.a,v=>v*vo.gain*(sh.g||1)*quiet+.0001);
  if(sh.trill){const tr=a.createOscillator(),tg=a.createGain(),tm=a.createGain();tr.frequency.value=sh.trill;tg.gain.value=.45;tm.gain.value=.55;tr.connect(tg);tg.connect(tm.gain);tg.gain.setValueAtTime(.45,t);tg.gain.linearRampToValueAtTime(0,t+d*.5);src.connect(tm);tm.connect(amp);tr.start(t);tr.stop(t+d+.05)}else src.connect(amp);
  // vocal tract: formants F1/F2/F3 as peaking EQs over a gentle high-pass, then lips (low-pass) opening and closing
  const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=f0*.7;
@@ -165,7 +165,7 @@ function meow(ci=options.coat,quiet=1){if(!options.sound)return;try{audioCtx??=n
  F2.frequency.cancelScheduledValues(t);F2.frequency.setValueAtTime((1050+1250*eAt(0))*Math.sqrt(sc),t);for(let i=1;i<=8;i++){const x=i/8;F2.frequency.linearRampToValueAtTime((1050+1250*eAt(x))*Math.sqrt(sc),t+x*d)}
  F3.frequency.value=3100*Math.sqrt(sc);curve(lips.frequency,t,d,sh.o,v=>(650+3300*v)*vo.bright);const air=a.createBiquadFilter();air.type='lowpass';air.frequency.value=5200;air.Q.value=.5;
  amp.connect(hp);hp.connect(F1);F1.connect(F2);F2.connect(F3);F3.connect(lips);
- const master=a.createGain();master.gain.value=.16;lips.connect(air);air.connect(master);master.connect(a.destination);
+ const master=a.createGain();master.gain.value=.16;lastMeowOut=master;lips.connect(air);air.connect(master);master.connect(a.destination);
  if(!noiseBuf){noiseBuf=a.createBuffer(1,a.sampleRate,a.sampleRate);const ch=noiseBuf.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1}
  const nz=a.createBufferSource(),nb=a.createBiquadFilter(),ng=a.createGain();nz.buffer=noiseBuf;nb.type='bandpass';nb.frequency.value=3200;nb.Q.value=.8;curve(ng.gain,t,d,sh.a,v=>v*(vo.breath+vo.rasp)*vo.gain*quiet+.0001);nz.connect(nb);nb.connect(ng);ng.connect(lips);
  if(vo.rasp){const sub=a.createOscillator(),sg=a.createGain();sub.type='triangle';curve(sub.frequency,t,d,sh.p,v=>f0*v*.5);curve(sg.gain,t,d,sh.a,v=>v*vo.rasp*vo.gain*quiet+.0001);sub.connect(sg);sg.connect(hp);sub.start(t);sub.stop(t+d+.05)}
