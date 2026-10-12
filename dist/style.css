@@ -178,3 +178,18 @@ kbd{font-family:var(--ui);font-size:11px;font-weight:600;border:2px solid var(--
 .motion+.motion{margin-top:10px}
 #storm-tint{position:fixed;inset:0;background:linear-gradient(#2c3b52,#3d4c5e);opacity:0;pointer-events:none;z-index:1;mix-blend-mode:multiply}
 #hud{z-index:2}#toast{z-index:5}
+
+/* Supercharge banner */
+.charge{position:absolute;left:50%;top:150px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:10px 16px 10px 12px;border:3px solid var(--line);border-radius:18px;background:linear-gradient(#fff6b8,#ffd84a);box-shadow:0 4px 0 var(--line),0 0 26px #ffd23f99;animation:chargeGlow .5s ease-in-out infinite alternate;z-index:3;white-space:nowrap}
+.charge-bolt{font-size:30px;line-height:1;filter:drop-shadow(0 2px 0 #00000033)}
+.charge-text{display:flex;flex-direction:column;gap:2px;min-width:150px}
+.charge b{font-family:var(--ui);font-weight:700;font-size:18px;letter-spacing:.5px;color:var(--line)}
+.charge small{font-size:13px;font-weight:800;color:#5a4a12}
+.charge-bar{height:8px;border:2px solid var(--line);border-radius:6px;background:#fffbe6;overflow:hidden;margin-top:3px}
+.charge-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff9f1c,#ffcf3a);transform-origin:left;transition:transform .2s linear}
+.charge em{font-family:var(--ui);font-style:normal;font-weight:700;font-size:26px;color:var(--line);min-width:44px;text-align:right}
+.charge.ending{animation:chargeBlink .3s steps(2) infinite}
+@keyframes chargeGlow{to{box-shadow:0 4px 0 var(--line),0 0 40px #ffd23fcc}}
+@keyframes chargeBlink{50%{opacity:.55}}
+body.charged #toast{top:240px}
+@media(max-width:600px){.charge{top:112px;gap:8px;padding:7px 12px 7px 9px}.charge-bolt{font-size:24px}.charge b{font-size:16px}.charge small{font-size:12px}.charge-text{min-width:128px}.charge em{font-size:22px;min-width:36px}body.charged #toast{top:200px}}
