@@ -154,7 +154,17 @@ function sample(pts,x){let i=1;while(i<pts.length-1&&pts[i][0]<x)i++;const[x0,y0
 function curve(param,t0,d,pts,map,steps=14){param.cancelScheduledValues(t0);param.setValueAtTime(map(sample(pts,0)),t0);for(let i=1;i<=steps;i++){const x=i/steps;param.linearRampToValueAtTime(map(sample(pts,x)),t0+x*d)}}
 function formantAt(vp,n){const i=Math.min(1,Math.floor(vp)),f=vp-i;return vowels[i][n]+(vowels[i+1][n]-vowels[i][n])*f}
 function voiceWave(a){const key=a.sampleRate;if(meowWaves.has(key))return meowWaves.get(key);const n=48,re=new Float32Array(n),im=new Float32Array(n);for(let h=1;h<n;h++)im[h]=Math.pow(h,-1.15);const w=a.createPeriodicWave(re,im);meowWaves.set(key,w);return w}
-function meow(ci=options.coat,quiet=1,short=false){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const a=audioCtx;if(a.currentTime-lastMeowAt<.1)return;lastMeowAt=a.currentTime;if(lastMeowOut){lastMeowOut.gain.cancelScheduledValues(a.currentTime);lastMeowOut.gain.setTargetAtTime(0,a.currentTime,.012)}
+// Recorded meows (Mixkit, free licence): one voice per cat, a full call for the menu and four quick
+// pitch/tempo variants for hops. The synthesised voice below remains only as a fallback while files load.
+const meowFiles=['miso','peony','mochi'],meowBufs={};let meowLoading=null;
+function loadMeows(a){if(!meowLoading)meowLoading=Promise.all(meowFiles.flatMap(n=>['full','1','2','3','4'].map(v=>fetch('audio/'+n+'-'+v+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>a.decodeAudioData(b)).then(buf=>{meowBufs[n+'-'+v]=buf}).catch(()=>{}))));return meowLoading}
+function warmAudio(){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();loadMeows(audioCtx)}catch{}}
+addEventListener('pointerdown',warmAudio,{once:true,capture:true});addEventListener('keydown',warmAudio,{once:true,capture:true});
+function meow(ci=options.coat,quiet=1,short=false){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const a=audioCtx;loadMeows(a);const name=meowFiles[ci]||'miso';let key=name+'-full',k=0;if(short){do k=1+Math.floor(Math.random()*4);while(k===lastMeowRec[ci]);key=name+'-'+k}const buf=meowBufs[key];if(!buf)return synthMeow(ci,quiet,short);
+ if(a.currentTime-lastMeowAt<.1)return;if(short)lastMeowRec[ci]=k;lastMeowAt=a.currentTime;if(lastMeowOut){lastMeowOut.gain.cancelScheduledValues(a.currentTime);lastMeowOut.gain.setTargetAtTime(0,a.currentTime,.012)}
+ const src=a.createBufferSource(),g=a.createGain();src.buffer=buf;src.playbackRate.value=.97+Math.random()*.06;g.gain.value=.42*quiet;src.connect(g);g.connect(a.destination);lastMeowOut=g;src.start()}catch(e){}}
+let lastMeowRec=[0,0,0];
+function synthMeow(ci=options.coat,quiet=1,short=false){if(!options.sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const a=audioCtx;if(a.currentTime-lastMeowAt<.1)return;lastMeowAt=a.currentTime;if(lastMeowOut){lastMeowOut.gain.cancelScheduledValues(a.currentTime);lastMeowOut.gain.setTargetAtTime(0,a.currentTime,.012)}
  const vo=catVoices[ci]||catVoices[0];let k;do k=Math.floor(Math.random()*meowShapes.length);while(k===lastMeow[ci]);lastMeow[ci]=k;
  const sh=meowShapes[k],t=a.currentTime+.01,d=sh.d*(short?.5:1)*(.9+Math.random()*.2),f0=vo.f*(.94+Math.random()*.12),fs=vo.form*Math.sqrt(vo.f/700);
  const src=a.createOscillator();src.setPeriodicWave(voiceWave(a));curve(src.frequency,t,d,sh.p,v=>f0*v);

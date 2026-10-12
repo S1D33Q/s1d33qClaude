@@ -44,3 +44,6 @@ All four vehicle designs were rebuilt with glass bounded to their respective cab
 
 ## Scope
 An original cat-focused interpretation of the arcade lane-crossing genre. It has its own branding, artwork, audio, interface, and pacing. It does not include the commercial Crossy Road character catalog, licensed worlds, multiplayer, store systems, or mobile-native packaging. Performance depends on device GPU and browser; actual mobile hardware has not been certified.
+
+## Sound credits
+Cat meows: Mixkit (https://mixkit.co) sound effects "Little cat pain meow", "Sweet kitty meow" and "Cartoon little cat meow", used under the Mixkit Sound Effects Free License. Trimmed, normalised and pitch/tempo-varied in `dist/audio/`.
