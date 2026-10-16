@@ -193,3 +193,8 @@ kbd{font-family:var(--ui);font-size:11px;font-weight:600;border:2px solid var(--
 @keyframes chargeBlink{50%{opacity:.55}}
 body.charged #toast{top:240px}
 @media(max-width:600px){.charge{top:112px;gap:8px;padding:7px 12px 7px 9px}.charge-bolt{font-size:24px}.charge b{font-size:16px}.charge small{font-size:12px}.charge-text{min-width:128px}.charge em{font-size:22px;min-width:36px}body.charged #toast{top:200px}}
+/* Endless stroll picks a starry twilight menu backdrop; flip the cat card text to light so it stays legible. */
+body.mode-endless:not(.playing) .cat-card strong{color:#fff8e6;text-shadow:0 2px 10px #1c255299}
+body.mode-endless:not(.playing) .cat-card small,body.mode-endless:not(.playing) .cat-card .label{color:#e6def8;text-shadow:0 1px 6px #1c255299}
+body.mode-endless:not(.playing) .cat-dots i{background:#cfc6ee80}body.mode-endless:not(.playing) .cat-dots i.on{background:#ffb48a}
+@media(orientation:portrait) and (max-width:1100px){body.mode-endless:not(.playing) .brand{color:#fff5dc}body.mode-endless:not(.playing) .brand-cat{filter:brightness(0) invert(1)}body.mode-endless:not(.playing) .vignette{background:linear-gradient(0deg,#f1f2e0 0%,#f1f2e0f2 40%,#f1f2e000 58%)}}
