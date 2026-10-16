@@ -25,11 +25,11 @@ Wait for traffic gaps. Red traffic signals slow and stop road traffic. Ride floa
 Every run begins during the day. The solar clock combines time spent actively playing and furthest distance, then smooths the result; sunset is not an abrupt level switch. Full night requires late-stage progress and about three minutes of active play. A fast journey can finish before full night. Endless stays moonlit after night arrives. Pausing freezes world time. The cat's collar, streetlamps, signal lenses, house windows, fireflies and headlights become prominent at night.
 
 ## Editable source
-- `dist/game.js`: rendering, procedural models, generation, physics, audio, input, and game states.
-- `dist/style.css`: responsive menus and HUD.
-- `dist/index.html`: interface and accessibility labels.
-- `dist/cat-mark.svg`: original brand mark.
-- `dist/vendor/three.module.js`: locally bundled Three.js r170 (MIT).
+- `dist/whiskerway/game.js`: rendering, procedural models, generation, physics, audio, input, and game states.
+- `dist/whiskerway/style.css`: responsive menus and HUD.
+- `dist/whiskerway/index.html`: interface and accessibility labels.
+- `dist/whiskerway/cat-mark.svg`: original brand mark.
+- `dist/whiskerway/vendor/three.module.js`: locally bundled Three.js r170 (MIT).
 - `ROADMAP.md`: research, direction, art bible, mechanics, and delivery plan.
 - `QA.md`: performed checks and verification limits.
 
@@ -44,3 +44,11 @@ All four vehicle designs were rebuilt with glass bounded to their respective cab
 
 ## Scope
 An original cat-focused interpretation of the arcade lane-crossing genre. It has its own branding, artwork, audio, interface, and pacing. It does not include the commercial Crossy Road character catalog, licensed worlds, multiplayer, store systems, or mobile-native packaging. Performance depends on device GPU and browser; actual mobile hardware has not been certified.
+
+## Sound credits
+Cat meows: Mixkit (https://mixkit.co) sound effects "Little cat pain meow", "Sweet kitty meow" and "Cartoon little cat meow", used under the Mixkit Sound Effects Free License. Trimmed, normalised and pitch/tempo-varied in `dist/whiskerway/audio/`.
+
+## Site layout
+- `dist/index.html`: the s1d33q.com games portal (featured game, game grid, coming-soon cards).
+- `dist/assets/`: portal art, including the Whiskerway cover and card thumbnails.
+- `dist/whiskerway/`: the game itself, served at https://s1d33q.com/whiskerway/.

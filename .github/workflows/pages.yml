@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/website-deployment-wm4tlf]
+    branches: [claude/website-deployment-wm4tlf]
   workflow_dispatch:
 
 permissions:
